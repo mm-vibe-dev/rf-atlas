@@ -14,7 +14,7 @@ Common recovered frame records now include schema, protocol, source checksum, sa
 
 The FEC interface exposes the existing original DMR Golay slot and BPTC correction algorithms with exact binary input sizes and explicit limits. Golay accepts only a unique nearest codeword within three errors. BPTC uses at most five iterative syndrome passes; correction operations are not the number of channel errors. A converged codeword still requires the native CSBK CRC. CRC checking alone is never described as FEC. No generic Reed–Solomon, convolutional or universal FEC support is claimed.
 
-The sanitized doctor command distinguishes tool availability, receiver sample delivery, optional decoders, model checksum, loopback-port availability and browser audio capability. Its receiver test permits at most two finite acquisitions under the shared lock, with one process restart. It exports no serials, paths, host names, raw stderr or RF content. It does not change drivers, USB passthrough, system permissions or audio infrastructure.
+Opening the receiver is now displayed as opened_unverified until actual measurement delivery is observed; enumeration alone cannot report sample-delivery success. The sanitized doctor command distinguishes tool availability, receiver sample delivery, optional decoders, model checksum, loopback-port availability and browser audio capability. Its receiver test permits at most two finite acquisitions under the shared lock, with one process restart. It exports no serials, paths, host names, raw stderr or RF content. It does not change drivers, USB passthrough, system permissions or audio infrastructure.
 
 ## Frozen ML evaluation
 

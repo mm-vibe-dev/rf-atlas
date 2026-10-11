@@ -39,6 +39,7 @@ def load_model(path):
     digest=hashlib.sha256(raw).hexdigest();manifest=path.with_suffix('.sha256')
     if not manifest.is_file() or manifest.stat().st_size>128 or manifest.read_text().strip()!=digest:raise ValueError('RF model checksum does not match local approval manifest')
     model=json.loads(raw)
+    if not isinstance(model,dict):raise ValueError('RF model must be an object')
     if model.get('schema')!=1 or model.get('algorithm')!=VERSION or tuple(model.get('families',[]))!=FAMILIES or tuple(model.get('modulations',[]))!=MODULATIONS:raise ValueError('Unsupported RF model contract')
     for key,shape in [('mean',(28,)),('scale',(28,)),('family_weights',(29,5)),('modulation_weights',(29,14))]:
         value=np.asarray(model.get(key),float)
@@ -77,8 +78,9 @@ def infer(analysis,metadata,path):
 def enabled_model(root):
     root=Path(root);settings=root/'runtime/app-settings.json'
     try:
-        if settings.is_file() and settings.stat().st_size<=4096 and json.loads(settings.read_text()).get('ai_enabled') is True:
-            return root/'runtime/models/ai-model.json'
+        if settings.is_file() and settings.stat().st_size<=4096:
+            value=json.loads(settings.read_text())
+            if isinstance(value,dict) and value.get('ai_enabled') is True:return root/'runtime/models/ai-model.json'
     except (ValueError,OSError):pass
     return None
 

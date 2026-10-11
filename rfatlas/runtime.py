@@ -257,9 +257,9 @@ class RuntimeSupervisor:
         with self._lock:
             tuner=self.tuner.status(); survey=self.survey.status(); scanner=self.scanner.status(); monitor=self.monitor.status(include_waterfall=False)
             if tuner['latest'] and tuner['active']:
-                self.receiver['status']='available'; self.receiver.pop('error',None)
+                self.receiver.update(status='available',sample_delivery_verified=True); self.receiver.pop('error',None)
             if monitor['latest'] and monitor['active']:
-                self.receiver['status']='available'; self.receiver.pop('error',None)
+                self.receiver.update(status='available',sample_delivery_verified=True); self.receiver.pop('error',None)
             if tuner['status']=='failed': self.receiver.update(status='unavailable',error=tuner['error'])
             if monitor['status']=='failed': self.receiver.update(status='unavailable',error=monitor['error'])
             from . import __version__
@@ -333,7 +333,7 @@ class RuntimeSupervisor:
                 try:
                     backend=RTLBackend(self.config)
                     with backend.lock(): backend.run([backend.tool('rtl_test'),'-d',self.config.device,'-t'],20)
-                    self.receiver=dict(status='available',model='RTL-SDR Blog V4 compatible',message='Configured local receiver opened successfully.')
+                    self.receiver=dict(status='opened_unverified',sample_delivery_verified=False,model='RTL-SDR Blog V4 compatible',message='Receiver opened. Sample delivery is unverified; run rf-atlas doctor for a finite acquisition check.')
                 except Exception:
                     self.receiver=dict(status='unavailable',model='RTL-SDR Blog V4 compatible',error='Receiver check failed. Check existing tool paths, USB connection and competing applications.')
             else: raise ValueError('Unknown runtime action')

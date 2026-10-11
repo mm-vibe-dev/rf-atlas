@@ -4,6 +4,7 @@ import binascii
 import json
 from pathlib import Path
 import tempfile
+import sys
 import unittest
 from unittest.mock import patch
 import numpy as np
@@ -42,6 +43,8 @@ class Release19Tests(unittest.TestCase):
 
     def test_malformed_numeric_and_no_unbounded_queue(self):
         with tempfile.TemporaryDirectory() as root:
+            settings=Path(root)/'runtime/app-settings.json';settings.parent.mkdir();settings.write_text('[]')
+            self.assertIsNone(ai.enabled_model(root));self.assertFalse(ai.status(root)['enabled'])
             path=self.model(root);model=json.loads(path.read_text());model['scale'][0]=0
             raw=json.dumps(model).encode();path.write_bytes(raw);path.with_suffix('.sha256').write_text(hashlib.sha256(raw).hexdigest())
             with self.assertRaises(ValueError):ai.load_model(path)
@@ -128,6 +131,17 @@ class Release19Tests(unittest.TestCase):
             report=diagnose(Config(Path(root)),receiver=False)
             self.assertEqual(report['receiver']['status'],'NOT_TESTED')
             self.assertNotIn(root,json.dumps(report));self.assertEqual(report['configuration']['status'],'PASS')
+
+    def test_receiver_open_does_not_claim_sample_delivery(self):
+        from rfatlas.config import Config
+        from rfatlas.runtime import RuntimeSupervisor
+        with tempfile.TemporaryDirectory() as root:
+            runtime=RuntimeSupervisor(Config(Path(root),lock_root=Path(root)/'locks'))
+            try:
+                with patch('rfatlas.runtime.RTLBackend.tool',return_value=Path(sys.executable)),patch('rfatlas.runtime.RTLBackend.run',return_value=('','')):
+                    receiver=runtime.action('probe',{})['receiver']
+                self.assertEqual(receiver['status'],'opened_unverified');self.assertFalse(receiver['sample_delivery_verified'])
+            finally:runtime.close()
 
 
 if __name__=='__main__':unittest.main()
