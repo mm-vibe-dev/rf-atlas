@@ -1,0 +1,47 @@
+include LICENSE README.md CONTRIBUTING.md SECURITY.md config.example.toml
+include rf-atlas.cmd install-windows.cmd setup-windows.ps1 tools/release_check.py
+include tools/evaluate_analysis.py docs/phase13-validation.md
+include tools/evaluate_engine.py docs/classification-resource-evaluation.md docs/classification-benchmark-design.md docs/recording-interoperability.md docs/classification-engine-validation.md
+include tools/plot_engine_results.py
+include tools/evaluate_stability.py
+include tests/schema05.py
+include docs/native-protocol-decoder.md docs/protocol-decoder-evaluation.md docs/dashboard.md docs/classification-metrics.md docs/protocol-identification-validation.md
+include docs/packet-decoder-evaluation.md docs/analog-characterization.md docs/spectrum-inventory.md docs/inventory-validation.md
+recursive-include rfatlas/web_assets *.html *.js *.css *.LICENSE
+include docs/analytics.md docs/visualization.md docs/protocol-expansion.md docs/fcc-provider.md docs/intelligence-validation.md
+include tools/benchmark_analytics.py tools/benchmark_intelligence.py
+include docs/portable-architecture.md docs/install-windows.md docs/install-ubuntu.md
+include docs/foundation-gap-analysis.md docs/research-notes.md docs/dependency-licenses.md docs/foundation-validation.md docs/next-phase.md
+prune data
+prune exports
+prune logs
+prune reports
+prune runtime
+prune .venv
+prune docs/inventory
+prune tests/fixtures
+exclude config.local.toml
+exclude tests/test_processing.py tests/test_validation.py
+exclude tools/validation_report.py
+exclude docs/environment.md docs/validation.md docs/architecture.md docs/data-model.md docs/scan-strategy.md docs/local-readme.md
+global-exclude *.cu8 *.iq *.wav *.mp3 *.sqlite* *.db *.duckdb* *.parquet *.csv *.json *.log *.pyc *.npz *.sigmf-data *.sigmf-meta
+
+include docs/radio-interface.md docs/release-1.0.md
+
+include docs/discovery-console.md
+
+include docs/discovery-1.2.md tools/experiment_recognition.py tools/benchmark_discovery.py
+include docs/discovery-1.3.md
+include docs/discovery-1.4.md
+
+include tools/evaluate_characterization.py docs/discovery-1.5.md
+include tools/evaluate_recognition.py docs/discovery-1.6.md docs/rf-ml-evaluation.md
+include tools/evaluate_recovery.py docs/recovery-1.6rc2.md
+include tools/evaluate_advanced.py tools/inventory_dataset.py tools/experiment_structure_ml.py docs/discovery-1.7.md
+include tools/evaluate_investigation.py docs/investigation-1.7rc2.md
+include THIRD_PARTY_NOTICES.md RELEASE_NOTES.md
+include docs/discovery-1.8.md docs/discovery-1.9.md tools/browser_smoke.py
+include tools/benchmark_release19.py
+recursive-include scripts *.ps1
+recursive-include website *.html *.css
+recursive-include .github *.yml *.md

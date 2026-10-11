@@ -1,0 +1,47 @@
+name: portable-tests
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-24.04, ubuntu-26.04]
+        python: ["3.11", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install .[plots,analytics] build playwright
+      - run: python -m unittest discover -s tests -v
+      - run: python tools/release_check.py --tracked
+      - run: python -m build
+      - run: python -m rfatlas --version
+      - run: python -m rfatlas doctor --skip-receiver
+      - name: Installed wheel tests outside source checkout
+        shell: bash
+        run: |
+          python -m pip install --force-reinstall --no-deps dist/*.whl
+          mkdir ../rf-atlas-wheel-tests
+          cp -r tests tools docs README.md pyproject.toml config.example.toml ../rf-atlas-wheel-tests/
+          cd ../rf-atlas-wheel-tests
+          python -m unittest discover -s tests -v
+          rf-atlas --version
+      - run: python -m playwright install chromium
+      - run: python tools/browser_smoke.py
+      - name: Bounded optional CPU ML training and inference smoke
+        shell: bash
+        run: |
+          RF_ATLAS_HOME="$RUNNER_TEMP/rf-atlas-ai" python -m rfatlas ai-train --max-seconds 300
+          python -c "from rfatlas.training import references; from rfatlas.recognition import classify; from rfatlas.ai import infer; from pathlib import Path; import os; c,x=next(references('validation')); r=infer(classify(x,c['sample_rate']),{'sample_rate':c['sample_rate']},Path(os.environ['RUNNER_TEMP'])/'rf-atlas-ai/runtime/models/ai-model.json'); assert r['status']=='COMPLETE' and not r['protocol_verified']"
+      - name: Grouped synthetic DSP and AI holdout comparison
+        shell: bash
+        run: python tools/benchmark_release19.py --model "$RUNNER_TEMP/rf-atlas-ai/runtime/models/ai-model.json" --output "$RUNNER_TEMP/rf-atlas-ai/holdout.json"
+      - run: python -c "from pathlib import Path; assert Path('LICENSE').is_file(); assert Path('THIRD_PARTY_NOTICES.md').is_file(); assert all(Path('website',p).is_file() for p in ['index.html','download.html','documentation.html','style.css'])"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages-${{ matrix.os }}-${{ matrix.python }}
+          path: dist/

@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rf-atlas"
+version = "1.9.0rc1"
+description = "Local receive-only spectrum survey and conservative IQ analysis"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+dependencies = ["numpy>=1.24,<3", "scipy>=1.10,<2"]
+
+[project.optional-dependencies]
+plots = ["matplotlib>=3.7,<4"]
+analytics = ["duckdb>=1.4,<2"]
+
+[project.scripts]
+rf-atlas = "rfatlas.legacy:main"
+
+[tool.setuptools]
+packages = ["rfatlas"]
+py-modules = ["rf_atlas", "diagnostics"]
+
+[tool.setuptools.package-data]
+rfatlas = ["web_assets/*.html", "web_assets/*.js", "web_assets/*.css", "web_assets/*.LICENSE"]

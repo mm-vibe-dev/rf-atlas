@@ -1,0 +1,52 @@
+name: prerelease-after-validation
+on:
+  workflow_run:
+    workflows: [portable-tests]
+    types: [completed]
+permissions:
+  contents: read
+concurrency:
+  group: prerelease
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install build
+      - run: python tools/release_check.py --tracked
+      - run: python -m build
+      - name: Prepare checksummed artifacts
+        run: |
+          python - <<'PY'
+          import hashlib, pathlib, zipfile, tomllib
+          root=pathlib.Path('.'); version=tomllib.loads((root/'pyproject.toml').read_text())['project']['version']
+          assert 'rc' in version, 'This workflow publishes prereleases only'
+          with zipfile.ZipFile(root/'dist'/f'rf-atlas-{version}-windows-scripts.zip','w',zipfile.ZIP_DEFLATED) as z:
+              for p in sorted((root/'scripts').glob('*.ps1')): z.write(p,p.name)
+              z.write(root/'LICENSE','LICENSE')
+              z.write(root/'THIRD_PARTY_NOTICES.md','THIRD_PARTY_NOTICES.md')
+          files=sorted(p for p in (root/'dist').iterdir() if p.is_file())
+          (root/'dist/SHA256SUMS').write_text(''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n' for p in files))
+          (root/'release-version.txt').write_text(version)
+          PY
+      - name: Publish immutable prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_HEAD: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          version=$(cat release-version.txt)
+          if gh release view "v$version" >/dev/null 2>&1; then
+            echo 'Release already exists; no assets or tags replaced.'
+            exit 0
+          fi
+          gh release create "v$version" dist/* --target "$RELEASE_HEAD" --prerelease --title "RF Atlas $version" --notes-file RELEASE_NOTES.md

@@ -1,0 +1,23 @@
+# Copy to config.local.toml (ignored); paths resolve relative to this file.
+[runtime]
+root = "./runtime"
+max_capture_bytes = 67108864
+retention_bytes = 536870912
+
+[hardware]
+# Use a local device index or serial. Do not publish real device identifiers.
+device = "0"
+
+[survey]
+start_hz = 100000000
+stop_hz = 101000000
+
+[tools]
+rtl_power = "rtl_power"
+rtl_sdr = "rtl_sdr"
+rtl_test = "rtl_test"
+
+# Optional offline decoders; never used to open a second receiver.
+# [decoders]
+# rtl_433 = "rtl_433"
+# dsd_fme = "dsd-fme"
