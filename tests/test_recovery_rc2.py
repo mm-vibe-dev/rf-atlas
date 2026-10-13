@@ -39,7 +39,8 @@ class RecoveryTests(unittest.TestCase):
             candidate=Path.home()/'.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe'
             if candidate.is_file():node=str(candidate)
         if not node:self.skipTest('Node unavailable for pure browser clock fixture')
-        asset=Path(__file__).resolve().parents[1]/'rfatlas/web_assets/audio_clock.js'
+        import rfatlas
+        asset=Path(rfatlas.__file__).resolve().parent/'web_assets/audio_clock.js'
         code="""const Clock=require(process.argv[1]);const c=new Clock();let oldEnd=0,oldGaps=0;
         for(let i=0;i<200;i++){const now=i*.1+(i%20===19?.29:0);if(oldEnd<now){if(i)oldGaps++;oldEnd=now+.16;}oldEnd+=.1;c.schedule(now,.1);}
         if(!(c.underruns===oldGaps&&c.gapSeconds>0&&c.target===.16&&c.end-19.9<.9))throw Error(JSON.stringify(c));

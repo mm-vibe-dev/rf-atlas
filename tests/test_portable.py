@@ -34,9 +34,9 @@ class PortableTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='rf atlas ') as folder:
             path=Path(folder)/'local.toml';path.write_text('[runtime]\nroot="./runtime dir"\n[hardware]\ndevice="0"\n[tools]\nrtl_sdr="./tools dir/receiver"\n')
             config=load_config(path)
-            self.assertEqual(config.root,Path(folder)/'runtime dir')
-            self.assertEqual(config.tools['rtl_sdr'],str(Path(folder)/'tools dir/receiver'))
-            self.assertEqual(resolve_path('relative',Path(folder)),Path(folder)/'relative')
+            self.assertEqual(config.root,(Path(folder)/'runtime dir').resolve())
+            self.assertEqual(config.tools['rtl_sdr'],str((Path(folder)/'tools dir/receiver').resolve()))
+            self.assertEqual(resolve_path('relative',Path(folder)),(Path(folder)/'relative').resolve())
 
     def test_invalid_configuration(self):
         for text in ['[runtime]\nmax_capture_bytes=-1','[hardware]\nbias_tee=true','[tools]\ntransmitter="x"','[unexpected]\na=1']:
