@@ -21,7 +21,9 @@ try {
         $name = "rf_atlas-$Version-py3-none-any.whl"
         $Wheel = Join-Path $downloadRoot $name
         Invoke-WebRequest "$base/$name" -OutFile $Wheel
-        $sums = (Invoke-WebRequest "$base/SHA256SUMS").Content
+        $manifestPath = Join-Path $downloadRoot 'SHA256SUMS'
+        Invoke-WebRequest "$base/SHA256SUMS" -OutFile $manifestPath
+        $sums = Get-Content -LiteralPath $manifestPath -Raw -Encoding utf8
         $matchesForWheel = @($sums -split "`n" | Where-Object { $_ -match ('^[a-fA-F0-9]{64}\s+\*?' + [regex]::Escape($name) + '\s*$') })
         if ($matchesForWheel.Count -ne 1) { throw 'Release checksum manifest is missing or ambiguous' }
         $Sha256 = ($matchesForWheel[0] -split '\s+')[0]

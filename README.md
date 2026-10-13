@@ -6,9 +6,9 @@ RF Atlas by **mm-vibe-dev** is a Windows-first, local, receive-only spectrum inv
 
 Explore, Signals and Settings provide bounded discovery, a private inventory, Tune & Monitor, retained-IQ Signal Lab plots and advanced investigation. Protocol verification requires actual synchronization/framing and integrity checks. Model predictions, frequency allocations and bit candidates are hypotheses. Frame and identifier retention default off. RF Atlas does not transmit, decrypt protected traffic, replace USB drivers or infer physical transmitter identity from a frequency.
 
-## Install from an audited local artifact
+## Install the experimental prerelease
 
-Public release upload and live documentation deployment are pending authenticated GitHub access. Do not assume PyPI availability. Build or obtain an audited wheel and verify its SHA256 against its manifest before installation.
+Download the wheel, Windows scripts and SHA256SUMS from the [1.9.0rc1 prerelease](https://github.com/mm-vibe-dev/rf-atlas/releases/tag/v1.9.0rc1). Verify the wheel or archive SHA256 against that manifest before installation. Read the [live documentation](https://mm-vibe-dev.github.io/rf-atlas/). No PyPI availability is claimed.
 
 ```text
 python -m venv .venv
@@ -21,6 +21,15 @@ rf-atlas app --open-browser
 Use the virtual environment's Python/pip and rf-atlas executable after activation. Windows users can run the user-scope [installer](scripts/install.ps1) with a local wheel, its SHA256 and version; [launch](scripts/launch.ps1), [upgrade](scripts/upgrade.ps1), [repair](scripts/repair.ps1) and [uninstall](scripts/uninstall.ps1) scripts preserve separate runtime data. An optional desktop shortcut is available. No administrator access, bundled drivers or global execution-policy changes are required.
 
 Ubuntu users need pipx and either python3-venv or the optional uv backend. The validated isolated Ubuntu 24.04 path uses `pipx install /path/to/verified-wheel.whl --backend uv` with uv available; upgrade with `pipx upgrade rf-atlas` only when its installation source has a newer audited artifact, or reinstall from a new verified wheel. `pipx uninstall rf-atlas` removes the application and preserves private runtime data. Configure separately installed RTL-SDR tools and appropriate USB permissions without modifying system Python. See [Windows configuration](docs/install-windows.md) and [Ubuntu configuration](docs/install-ubuntu.md).
+
+A public Git-source installation was also tested on Ubuntu 24.04 with pipx and uv:
+
+```text
+pipx install git+https://github.com/mm-vibe-dev/rf-atlas.git --backend uv
+rf-atlas --version
+```
+
+Use an audited release wheel when you need fixed release bytes; the Git command follows main.
 
 Copy config.example.toml to private config.local.toml and configure existing compatible RTL tools. The application starts idle and binds to loopback. RF_ATLAS_HOME selects the private runtime root; RF_ATLAS_CONFIG selects a config file. Runtime recordings, databases, settings, logs and decoded identifiers must not be published. The doctor report is sanitized by default; a receiver check makes at most two finite acquisitions.
 
@@ -51,4 +60,6 @@ python -m build
 
 Test the installed wheel outside the source checkout. Public tests generate their IQ; private recordings are excluded. CI covers Windows and Ubuntu source/wheel tests, offline browser smoke, optional CPU model smoke, packaging and publication checks. Hosted CI does not establish physical receiver or live audio validation.
 
-The prepared [documentation website](website/index.html) is local until Pages deployment is verified. Read [CONTRIBUTING](CONTRIBUTING.md), [SECURITY](SECURITY.md), [third-party notices](THIRD_PARTY_NOTICES.md), [dependency licenses](docs/dependency-licenses.md) and the [MIT license](LICENSE). uPlot's original MIT notice is included. External RTL tools, drivers, RF datasets and downloaded model checkpoints are not bundled.
+The [documentation website](https://mm-vibe-dev.github.io/rf-atlas/) is deployed with Home, Download and Documentation pages. Read [CONTRIBUTING](CONTRIBUTING.md), [SECURITY](SECURITY.md), [third-party notices](THIRD_PARTY_NOTICES.md), [dependency licenses](docs/dependency-licenses.md) and the [MIT license](LICENSE). uPlot's original MIT notice is included. External RTL tools, drivers, RF datasets and downloaded model checkpoints are not bundled.
+
+The immutable prerelease Windows scripts archive requires `-Wheel` and `-Sha256`: its automatic manifest download encounters binary response handling in PowerShell. The current source installer fixes this by reading the downloaded manifest as UTF-8. Verify release bytes against SHA256SUMS before using the local-wheel path.
